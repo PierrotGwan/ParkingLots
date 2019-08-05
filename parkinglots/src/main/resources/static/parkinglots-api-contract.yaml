@@ -1,0 +1,171 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Gwan parking lots API
+  description: API providing toll parking for sedan / electric vehicles.
+produces:
+  - application/json
+tags:
+  - name: ParkingLot
+    description: Parking lot operations allow administrators to manage the parking lots globally.
+  - name: Profile
+    description: Profile operations give developers the ability to check which ThingPark server instances are supported by the ThingPark DX API Platform.
+paths:
+  /admin/parkingLots:
+    post:
+      summary: Create a parking lot
+      description: Creates a new parking lot for later vehicle management.
+      x-since-version: 1.0.0
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: parkingLot
+          description: Contents of the new parking lot.
+          required: true
+          schema:
+            $ref: '#/definitions/ParkingLot'
+          x-example: '{"deviceEUI":"20635F0106000337","time":"2018-12-27T11:30:54.239+01:00","solverInput":{"solverInputType":"FeedInputForWifiSolver","sequenceNumber":23,"receptionTime":"2018-12-27T11:30:54.239+01:00","port":17,"SF":10,"packets":[{"baseStationId":"0805022D","antennaId":0,"antennaCoordinates":[7.0513,43.6181],"SNR":10,"RSSI":-29,"arrivalSeconds":1,"arrivalAdditionalNanos":7275}]},"payload":{"deviceProfileId":"ABEEWAY/MICRO","payloadEncoded":"0358f687790e54d0b403fa64c504f02134378ac0703a0e8b8541b93089d3c99ac0b8"}}'
+      responses:
+        '201':
+          description: Parking lot created successfully.
+          examples:
+            application/json:
+              - x-regga-type: sniplet
+                id: feed-request-coordinates
+                title: Feed request example with coordinates
+                requestSniplet:
+                  data: '{ "deviceEUI": "70B3D53260001A75", "time": "2017-08-29T14:31:33+00:00", "coordinates": [ 1.683172, 48.154301, 0.0 ] }'
+              - x-regga-type: sniplet
+                id: feed-request-payload
+                title: DataFeed request example with payload and input for the AGPS solver
+                requestSniplet:
+                  headers:
+                    Authorization: Bearer <subscriber_token>
+                  data: '{ "deviceEUI": "70B3D53260001A75", "time": "2017-08-29T14:31:33+00:00", "solverInput": { "solverInputType":"FeedInputForAgpsSolver", "sequenceNumber": 10, "port": 2, "packets": [ { "baseStationId": "6B001BE7", "antennaId": 0, "antennaCoordinates": [ 34.383360, 51.553081, 85.901071 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 7275 }, { "baseStationId": "6B001BD5", "antennaId": 0, "antennaCoordinates": [ 34.345027, 51.572273, 76.495455 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 14362 }, { "baseStationId": "6B001BD5", "antennaId": 0, "antennaCoordinates": [ 34.345937, 51.558466, 88.373166 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 14295 } ] }, "payload": { "deviceProfileId": "ABEEWAY/MICRO", "payloadEncoded": "7b2274696d65223a2232303a31343a3335222c2264617461223a32332e327d" } }'
+      tags:
+        - ParkingLot       
+    get:
+      summary: Parking lot list retrieval
+      description: Retrieves the list of existing parking lots.
+      x-since-version: 1.0.0
+      tags:
+        - ParkingLot
+      responses:
+        '200':
+          description: Parking lots retrieved successfully.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ParkingLot'
+          examples:
+            application/json:
+              - x-regga-type: sniplet
+                id: binder-configuration-getall
+                title: Binder configurations retrieval
+                requestSniplet:
+                  data: '[ { "ref": "4b689889-c6e3-465a-85e2-7b6d346e2c11", "deviceEUIList": "70B3D53260001A75,70B3D53260001A76,70B3D53260001A77", "callbackURL": "https://targetpushserver/listener" } ]'
+  '/admin/parkingLots/{parkingLotRef}':
+    get:
+      summary: Parking lot retrieval
+      description: Retrieves the parking lot corresponding to the provided ref.
+      x-since-version: 1.0.0
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the parking lot to retrieve.
+          type: string
+          required: true
+      tags:
+        - ParkingLot
+      responses:
+        '200':
+          description: Parking lot retrieved successfully.
+          schema:
+            $ref: '#/definitions/ParkingLot'
+          examples:
+            application/json:
+              - x-regga-type: sniplet
+                id: binder-configuration-get
+                title: Binder configuration retrieval
+                requestSniplet:
+                  headers:
+                    Authorization: Bearer <subscriber_token>
+                  uri: /binderConfigs/4b689889-c6e3-465a-85e2-7b6d346e2c11
+                data: '{ "ref": "4b689889-c6e3-465a-85e2-7b6d346e2c11", "deviceEUIList": "70B3D53260001A75,70B3D53260001A76,70B3D53260001A77", "callbackURL": "https://targetpushserver/listener" }'
+    delete:
+      summary: Parking lot deletion
+      description: Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)
+      x-since-version: 1.0.0
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the parking lot to delete.
+          type: string
+          required: true
+      tags:
+        - ParkingLot
+      responses:
+        '204':
+          description: Parking lot deleted successfully.
+          examples:
+            application/json:
+              - x-regga-type: sniplet
+                id: binder-configuration-delete
+                title: Binder configuration deletion
+                requestSniplet:
+                  headers:
+                    Authorization: Bearer <subscriber_token>
+                  uri: /binderConfigs/4b689889-c6e3-465a-85e2-7b6d346e2c11
+definitions:
+  ParkingLot:
+    description: Resource representing a parking lot. It must contain a list of parking slots
+    properties:
+      ref:
+        type: string
+        description: Ref of the parking lot. Generated by the system upon creation.
+      name:
+        type: string
+        description: Name of the parking lot
+      parkingSlots:
+        type: array
+        description: List of parking slots.
+        items:
+          $ref: '#/definitions/ParkingSlot'
+      pricingPolicy:
+        description: Parking lot pricing policy.
+        $ref: '#/definitions/ParkingLotPricingPolicy'
+  ParkingLotPricingPolicy:
+    description: 'Resource representing the pricing policy for a parking lot. The three properties are equation for computing the price based on the number of hours (h) and the hour price (hp). Thus, the string is verified upon insertion, and the only allowed string parts are: h, np, *, +, (, ) and any number.'
+    properties:
+      sedanPricingPolicy:
+        type: string
+        description: Pricing policy for sedan cars
+      20kwPricingPolicy:
+        type: string
+        description: Pricing policy for 20kw electric cars
+      50kwPricingPolicy:
+        type: string
+        description: Pricing policy for 20kw electric cars
+  ParkingSlot:
+    description: Resource representing a parking slot in a parking lot. It can accept either sedan cars, 20kw electric cars or 50kw electric cars.
+    properties:
+      name:
+        type: string
+        description: Name of the parking slot. It must be unique within the parking lot.
+      parkingSlotType:
+        type: string
+        description: 'Type of this parking slot. Possible values are ''PARKING_SLOT_SEDAN’ (parking slot for sedan cars), ‘PARKING_SLOT_20KW’ (parking slot for 20kw electric cars) and ''PARKING_SLOT_50KW’ (parking slot for 50kw electric cars).'
+        enum:
+          - PARKING_SLOT_SEDAN
+          - PARKING_SLOT_20KW
+          - PARKING_SLOT_50KW
+      licensePlateParkedVehicle:
+        type: string
+        description: License plate of the car parked on this slot. It must be null when creating a parking lot.
+      parkTime:
+        type: string
+        format: date-time
+        description: Time of parking for the car currently on this slot. It must be null when creating a parking lot.
+        
+
