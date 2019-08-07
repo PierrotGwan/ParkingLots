@@ -1,10 +1,11 @@
 package fr.gwan.parkinglots.domain;
 
 public enum ParkingSlotTypeEnum {
-    PARKING_SLOT_SEDAN("ParkingSlotSedan"),
+    PARKING_SLOT_SEDAN("PARKING_SLOT_SEDAN"),
     
-    PARKING_SLOT_20KW("ParkingSlot20kw"),
-    PARKING_SLOT_50KW("ParkingSlot50kw");
+    PARKING_SLOT_20KW("PARKING_SLOT_20KW"),
+
+    PARKING_SLOT_50KW("PARKING_SLOT_50KW");
 
     private String value;
 

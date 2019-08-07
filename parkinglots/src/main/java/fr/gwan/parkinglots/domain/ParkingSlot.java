@@ -1,5 +1,6 @@
 package fr.gwan.parkinglots.domain;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -58,7 +59,7 @@ public class ParkingSlot {
     @Column(name = "license_plate_parked_vehicle", columnDefinition = "VARCHAR(128)", nullable = true)
     private String licensePlateParkedVehicle = null;
 
-    @Column(name = "park_time", columnDefinition = "DATETIME", nullable = false)
+    @Column(name = "park_time", columnDefinition = "DATETIME", nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date parkTime;
     
@@ -117,18 +118,6 @@ public class ParkingSlot {
     
     public void setParkTime(Date parkTime) {
         this.parkTime = parkTime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ParkingLotPricingPolicy)) {
-            return false;
-        }
-        ParkingSlot that = (ParkingSlot) o;
-        return Objects.equals(ref, that.ref);
     }
 
     @Override

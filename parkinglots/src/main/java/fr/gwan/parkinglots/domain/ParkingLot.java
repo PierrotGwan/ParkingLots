@@ -51,8 +51,8 @@ public class ParkingLot implements Serializable {
     private Set<ParkingSlot> parkingSlots = new HashSet<>();
 
     
-    @OneToOne(cascade=CascadeType.REMOVE)
-    private ParkingLotPricingPolicy parkingLotPricingPolicy;
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
+    private PricingPolicy pricingPolicy;
     
     public UUID getRef() {
         return ref;
@@ -107,39 +107,29 @@ public class ParkingLot implements Serializable {
         return parkingSlots;
     }
 
-    public void setParkingSlots(Set<ParkingSlot> parkingSlots) {
-        this.parkingSlots = parkingSlots;
+    public ParkingLot parkingSlots(Set<ParkingSlot> parkingSlots) {
+        this.setParkingSlots(parkingSlots);
+        return this;
     }
 
-    public ParkingLotPricingPolicy getParkingLotPricingPolicy() {
-        return parkingLotPricingPolicy;
+    public void setParkingSlots(Set<ParkingSlot> parkingSlots) {
+    	this.parkingSlots = new HashSet<>();
+    	parkingSlots.forEach( (parkingSlot) -> this.addParkingSlot(parkingSlot) );
+    }
+
+    public PricingPolicy getPricingPolicy() {
+        return pricingPolicy;
     }
     
-    public ParkingLot parkingLotPricingPolicy(ParkingLotPricingPolicy parkingLotPricingPolicy) {
-        this.parkingLotPricingPolicy = parkingLotPricingPolicy;
+    public ParkingLot pricingPolicy(PricingPolicy pricingPolicy) {
+        this.pricingPolicy = pricingPolicy;
         return this;
     }
     
-    public void setParkingLotPricingPolicy(ParkingLotPricingPolicy parkingLotPricingPolicy) {
-        this.parkingLotPricingPolicy = parkingLotPricingPolicy;
+    public void setPricingPolicy(PricingPolicy pricingPolicy) {
+        this.pricingPolicy = pricingPolicy;
     }
     
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ParkingLot parkingLot = (ParkingLot) o;
-        if (parkingLot.ref == null || ref == null) {
-            return false;
-        }
-        return Objects.equals(ref, parkingLot.ref);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(ref);
@@ -147,6 +137,6 @@ public class ParkingLot implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ParkingLot [ref=%s, parkingSlots=%s, parkingLotPricingPolicy=%s]", ref, parkingSlots, parkingLotPricingPolicy);
+        return String.format("ParkingLot [ref=%s, parkingSlots=%s, pricingPolicy=%s]", ref, parkingSlots, pricingPolicy);
     }
 }

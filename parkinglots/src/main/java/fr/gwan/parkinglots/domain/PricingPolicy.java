@@ -16,8 +16,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "parking_lot_pricing_policy")
-public class ParkingLotPricingPolicy implements Serializable {
+@Table(name = "pricing_policy")
+public class PricingPolicy implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +52,7 @@ public class ParkingLotPricingPolicy implements Serializable {
         return sedanPricingPolicy;
     }
 
-    public ParkingLotPricingPolicy sedanPricingPolicy(String sedanPricingPolicy) {
+    public PricingPolicy sedanPricingPolicy(String sedanPricingPolicy) {
         this.sedanPricingPolicy = sedanPricingPolicy;
         return this;
     }
@@ -65,7 +65,7 @@ public class ParkingLotPricingPolicy implements Serializable {
         return _20kwPricingPolicy;
     }
 
-    public ParkingLotPricingPolicy _20kwPricingPolicy(String _20kwPricingPolicy) {
+    public PricingPolicy _20kwPricingPolicy(String _20kwPricingPolicy) {
         this._20kwPricingPolicy = _20kwPricingPolicy;
         return this;
     }
@@ -78,7 +78,7 @@ public class ParkingLotPricingPolicy implements Serializable {
         return _50kwPricingPolicy;
     }
 
-    public ParkingLotPricingPolicy _50kwPricingPolicy(String _50kwPricingPolicy) {
+    public PricingPolicy _50kwPricingPolicy(String _50kwPricingPolicy) {
         this._50kwPricingPolicy = _50kwPricingPolicy;
         return this;
     }
@@ -99,7 +99,7 @@ public class ParkingLotPricingPolicy implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ParkingLotPricingPolicy [sedanPricingPolicy=%s, _20kwPricingPolicy=%s, _50kwPricingPolicy=%s]", 
+        return String.format("PricingPolicy [sedanPricingPolicy=%s, _20kwPricingPolicy=%s, _50kwPricingPolicy=%s]", 
             getSedanPricingPolicy(), get20kwPricingPolicy(), get50kwPricingPolicy());
     }
 }

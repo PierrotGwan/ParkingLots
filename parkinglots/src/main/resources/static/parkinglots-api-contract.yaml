@@ -3,21 +3,18 @@ info:
   version: 1.0.0
   title: Gwan parking lots API
   description: API providing toll parking for sedan / electric vehicles.
+consumes:
+  - application/json
 produces:
   - application/json
 tags:
   - name: ParkingLot
     description: Parking lot operations allow administrators to manage the parking lots globally.
-  - name: Profile
-    description: Profile operations give developers the ability to check which ThingPark server instances are supported by the ThingPark DX API Platform.
 paths:
   /admin/parkingLots:
     post:
       summary: Create a parking lot
       description: Creates a new parking lot for later vehicle management.
-      x-since-version: 1.0.0
-      consumes:
-        - application/json
       parameters:
         - in: body
           name: parkingLot
@@ -25,30 +22,18 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/ParkingLot'
-          x-example: '{"deviceEUI":"20635F0106000337","time":"2018-12-27T11:30:54.239+01:00","solverInput":{"solverInputType":"FeedInputForWifiSolver","sequenceNumber":23,"receptionTime":"2018-12-27T11:30:54.239+01:00","port":17,"SF":10,"packets":[{"baseStationId":"0805022D","antennaId":0,"antennaCoordinates":[7.0513,43.6181],"SNR":10,"RSSI":-29,"arrivalSeconds":1,"arrivalAdditionalNanos":7275}]},"payload":{"deviceProfileId":"ABEEWAY/MICRO","payloadEncoded":"0358f687790e54d0b403fa64c504f02134378ac0703a0e8b8541b93089d3c99ac0b8"}}'
       responses:
         '201':
           description: Parking lot created successfully.
-          examples:
-            application/json:
-              - x-regga-type: sniplet
-                id: feed-request-coordinates
-                title: Feed request example with coordinates
-                requestSniplet:
-                  data: '{ "deviceEUI": "70B3D53260001A75", "time": "2017-08-29T14:31:33+00:00", "coordinates": [ 1.683172, 48.154301, 0.0 ] }'
-              - x-regga-type: sniplet
-                id: feed-request-payload
-                title: DataFeed request example with payload and input for the AGPS solver
-                requestSniplet:
-                  headers:
-                    Authorization: Bearer <subscriber_token>
-                  data: '{ "deviceEUI": "70B3D53260001A75", "time": "2017-08-29T14:31:33+00:00", "solverInput": { "solverInputType":"FeedInputForAgpsSolver", "sequenceNumber": 10, "port": 2, "packets": [ { "baseStationId": "6B001BE7", "antennaId": 0, "antennaCoordinates": [ 34.383360, 51.553081, 85.901071 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 7275 }, { "baseStationId": "6B001BD5", "antennaId": 0, "antennaCoordinates": [ 34.345027, 51.572273, 76.495455 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 14362 }, { "baseStationId": "6B001BD5", "antennaId": 0, "antennaCoordinates": [ 34.345937, 51.558466, 88.373166 ], "SNR": 100, "RSSI": -1000, "arrivalSeconds": 1, "arrivalAdditionalNanos": 14295 } ] }, "payload": { "deviceProfileId": "ABEEWAY/MICRO", "payloadEncoded": "7b2274696d65223a2232303a31343a3335222c2264617461223a32332e327d" } }'
+          schema:
+            $ref: '#/definitions/ParkingLot'
+        '400':
+          description: Provided parking lot check failed.
       tags:
         - ParkingLot       
     get:
       summary: Parking lot list retrieval
       description: Retrieves the list of existing parking lots.
-      x-since-version: 1.0.0
       tags:
         - ParkingLot
       responses:
@@ -69,7 +54,6 @@ paths:
     get:
       summary: Parking lot retrieval
       description: Retrieves the parking lot corresponding to the provided ref.
-      x-since-version: 1.0.0
       parameters:
         - in: path
           name: parkingLotRef
@@ -96,7 +80,6 @@ paths:
     delete:
       summary: Parking lot deletion
       description: Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)
-      x-since-version: 1.0.0
       parameters:
         - in: path
           name: parkingLotRef
@@ -134,9 +117,46 @@ definitions:
           $ref: '#/definitions/ParkingSlot'
       pricingPolicy:
         description: Parking lot pricing policy.
-        $ref: '#/definitions/ParkingLotPricingPolicy'
-  ParkingLotPricingPolicy:
-    description: 'Resource representing the pricing policy for a parking lot. The three properties are equation for computing the price based on the number of hours (h) and the hour price (hp). Thus, the string is verified upon insertion, and the only allowed string parts are: h, np, *, +, (, ) and any number.'
+        $ref: '#/definitions/PricingPolicy'
+    example:
+      name: Test parking lot
+      parkingSlots:
+        - name: Test parking slot 2
+          parkingSlotType: PARKING_SLOT_50KW
+        - name: Test parking slot 0
+          parkingSlotType: PARKING_SLOT_SEDAN
+        - name: Test parking slot 1
+          parkingSlotType: PARKING_SLOT_20KW
+        - name: Test parking slot 12
+          parkingSlotType: PARKING_SLOT_SEDAN
+        - name: Test parking slot 14
+          parkingSlotType: PARKING_SLOT_50KW
+        - name: Test parking slot 3
+          parkingSlotType: PARKING_SLOT_SEDAN
+        - name: Test parking slot 4
+          parkingSlotType: PARKING_SLOT_20KW
+        - name: Test parking slot 5
+          parkingSlotType: PARKING_SLOT_50KW
+        - name: Test parking slot 6
+          parkingSlotType: PARKING_SLOT_SEDAN
+        - name: Test parking slot 7
+          parkingSlotType: PARKING_SLOT_20KW
+        - name: Test parking slot 8
+          parkingSlotType: PARKING_SLOT_50KW
+        - name: Test parking slot 9
+          parkingSlotType: PARKING_SLOT_SEDAN
+        - name: Test parking slot 10
+          parkingSlotType: PARKING_SLOT_20KW
+        - name: Test parking slot 11
+          parkingSlotType: PARKING_SLOT_50KW
+        - name: Test parking slot 13
+          parkingSlotType: PARKING_SLOT_20KW
+      pricingPolicy:
+        20kwPricingPolicy: 10.5 * h + 20
+        50kwPricingPolicy: 12 * h * h + 2
+        sedanPricingPolicy: 10 * h
+  PricingPolicy:
+    description: 'Resource representing the pricing policy for a parking lot. The three properties are equation for computing the price based on the number of hours (h). Thus, the string is verified upon insertion, and the only allowed string parts are: h, *, +, (, ) and any number.'
     properties:
       sedanPricingPolicy:
         type: string
