@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootConfiguration
 @EnableAutoConfiguration
 @EnableSwagger2
-@ComponentScan(basePackages = { "fr.gwan" })
+@ComponentScan(basePackages = { "io.swagger", "io.swagger.api" })
 public class ParkingLotsServerRunner {
 
     public static void main(String[] args) {

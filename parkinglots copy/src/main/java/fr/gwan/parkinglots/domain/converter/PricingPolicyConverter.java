@@ -14,8 +14,7 @@ public class PricingPolicyConverter
     	pricingPolicyEntity.setSedanPricingPolicy(pricingPolicyApi.getSedanPricingPolicy());
     	pricingPolicyEntity.set20kwPricingPolicy(pricingPolicyApi.get20kwPricingPolicy());
     	pricingPolicyEntity.set50kwPricingPolicy(pricingPolicyApi.get50kwPricingPolicy());
-    	pricingPolicyEntity.setPaymentTimeout(pricingPolicyApi.getPaymentTimeout());
-    	pricingPolicyEntity.setExitTimeout(pricingPolicyApi.getExitTimeout());
+
         return pricingPolicyEntity;
     }
 
@@ -25,8 +24,6 @@ public class PricingPolicyConverter
     	pricingPolicyApi.setSedanPricingPolicy(pricingPolicyEntity.getSedanPricingPolicy());
     	pricingPolicyApi.set20kwPricingPolicy(pricingPolicyEntity.get20kwPricingPolicy());
     	pricingPolicyApi.set50kwPricingPolicy(pricingPolicyEntity.get50kwPricingPolicy());
-    	pricingPolicyApi.setPaymentTimeout(pricingPolicyEntity.getPaymentTimeout());
-    	pricingPolicyApi.setExitTimeout(pricingPolicyEntity.getExitTimeout());
         return pricingPolicyApi;
     }
 

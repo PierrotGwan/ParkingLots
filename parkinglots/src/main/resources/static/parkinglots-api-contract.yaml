@@ -10,6 +10,8 @@ produces:
 tags:
   - name: ParkingLot
     description: Parking lot operations allow administrators to manage the parking lots globally.
+  - name: Vehicle
+    description: Vehicle operations allow vehicles to enter / exit a parking lot.
 paths:
   /admin/parkingLots:
     post:
@@ -43,14 +45,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/ParkingLot'
-          examples:
-            application/json:
-              - x-regga-type: sniplet
-                id: binder-configuration-getall
-                title: Binder configurations retrieval
-                requestSniplet:
-                  data: '[ { "ref": "4b689889-c6e3-465a-85e2-7b6d346e2c11", "deviceEUIList": "70B3D53260001A75,70B3D53260001A76,70B3D53260001A77", "callbackURL": "https://targetpushserver/listener" } ]'
-  '/admin/parkingLots/{parkingLotRef}':
+  /admin/parkingLots/{parkingLotRef}:
     get:
       summary: Parking lot retrieval
       description: Retrieves the parking lot corresponding to the provided ref.
@@ -67,16 +62,8 @@ paths:
           description: Parking lot retrieved successfully.
           schema:
             $ref: '#/definitions/ParkingLot'
-          examples:
-            application/json:
-              - x-regga-type: sniplet
-                id: binder-configuration-get
-                title: Binder configuration retrieval
-                requestSniplet:
-                  headers:
-                    Authorization: Bearer <subscriber_token>
-                  uri: /binderConfigs/4b689889-c6e3-465a-85e2-7b6d346e2c11
-                data: '{ "ref": "4b689889-c6e3-465a-85e2-7b6d346e2c11", "deviceEUIList": "70B3D53260001A75,70B3D53260001A76,70B3D53260001A77", "callbackURL": "https://targetpushserver/listener" }'
+        '404':
+          description: Parking lot not found.
     delete:
       summary: Parking lot deletion
       description: Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)
@@ -91,15 +78,106 @@ paths:
       responses:
         '204':
           description: Parking lot deleted successfully.
-          examples:
-            application/json:
-              - x-regga-type: sniplet
-                id: binder-configuration-delete
-                title: Binder configuration deletion
-                requestSniplet:
-                  headers:
-                    Authorization: Bearer <subscriber_token>
-                  uri: /binderConfigs/4b689889-c6e3-465a-85e2-7b6d346e2c11
+        '404':
+          description: Parking lot not found.
+  /parkingLot/{parkingLotRef}/vehicle:
+    post:
+      summary: Enter a parking lot
+      description: Enter an existing parking lot with a vehicle.
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the parking lot to enter.
+          type: string
+          required: true
+        - in: body
+          name: vehicle
+          description: Information about the vehicle.
+          required: true
+          schema:
+            $ref: '#/definitions/Vehicle'
+      responses:
+        '201':
+          description: Parking lot entered successfully. Vehicle must access the returned parking slot
+          schema:
+            $ref: '#/definitions/ParkingSlot'
+      tags:
+        - Vehicle       
+  /parkingLot/{parkingLotRef}/vehicle/{licensePlate}/payment:
+    get:
+      summary: Request payment for a vehicle
+      description: Request the payment price for a parked vehicle.
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the vehicle parking lot.
+          type: string
+          required: true
+        - in: path
+          name: licensePlate
+          description: Vehicle license plate.
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Payment computed successfully
+          schema:
+            $ref: '#/definitions/Payment'
+        '404':
+          description: Vehicle or parking lot not found
+      tags:
+        - Vehicle       
+    post:
+      summary: Report payment for a vehicle
+      description: Report payment for a parked vehicle. The vehicle has until PricingPolicy.paymentTimeout seconds after price computation for this request to be accepted
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the vehicle parking lot.
+          type: string
+          required: true
+        - in: path
+          name: licensePlate
+          description: Vehicle license plate.
+          type: string
+          required: true
+      responses:
+        '201':
+          description: Payment processed successfully
+        '404':
+          description: Vehicle or parking lot not found
+        '408':
+          description: Payment timeout. Need to request a new price
+      tags:
+        - Vehicle       
+  /parkingLot/{parkingLotRef}/vehicle/{licensePlate}:
+    delete:
+      summary: Request exit for a vehicle
+      description: Request parking lot exit for a parked vehicle. The vehicle has until PricingPolicy.exitTimeout seconds after payment for this request to be accepted 
+      parameters:
+        - in: path
+          name: parkingLotRef
+          description: Ref of the vehicle parking lot.
+          type: string
+          required: true
+        - in: path
+          name: licensePlate
+          description: Vehicle license plate.
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Payment computed successfully
+          schema:
+            $ref: '#/definitions/Payment'
+        '403':
+          description: Payment required before exit
+        '404':
+          description: Vehicle or parking lot not found
+        '408':
+          description: Exit timeout. Need to request a new price and pay again
+      tags:
+        - Vehicle       
 definitions:
   ParkingLot:
     description: Resource representing a parking lot. It must contain a list of parking slots
@@ -119,6 +197,7 @@ definitions:
         description: Parking lot pricing policy.
         $ref: '#/definitions/PricingPolicy'
     example:
+      ref: 48548c27-48b7-4d57-b3e3-781ddc6c20c6 
       name: Test parking lot
       parkingSlots:
         - name: Test parking slot 2
@@ -155,6 +234,8 @@ definitions:
         20kwPricingPolicy: 10.5 * h + 20
         50kwPricingPolicy: 12 * h * h + 2
         sedanPricingPolicy: 10 * h
+        paymentTimeout: 300
+        exitTimeout: 600
   PricingPolicy:
     description: 'Resource representing the pricing policy for a parking lot. The three properties are equation for computing the price based on the number of hours (h). Thus, the string is verified upon insertion, and the only allowed string parts are: h, *, +, (, ) and any number.'
     properties:
@@ -167,6 +248,18 @@ definitions:
       50kwPricingPolicy:
         type: string
         description: Pricing policy for 20kw electric cars
+      paymentTimeout:
+        type: integer
+        description: Maximum number of seconds allowed after pricing computation before payment
+      exitTimeout:
+        type: integer
+        description: Maximum number of seconds allowed after payment before exit
+    example:
+      20kwPricingPolicy: 10.5 * h + 20
+      50kwPricingPolicy: 12 * h * h + 2
+      sedanPricingPolicy: 10 * h
+      paymentTimeout: 300
+      exitTimeout: 600
   ParkingSlot:
     description: Resource representing a parking slot in a parking lot. It can accept either sedan cars, 20kw electric cars or 50kw electric cars.
     properties:
@@ -174,12 +267,8 @@ definitions:
         type: string
         description: Name of the parking slot. It must be unique within the parking lot.
       parkingSlotType:
-        type: string
-        description: 'Type of this parking slot. Possible values are ''PARKING_SLOT_SEDAN’ (parking slot for sedan cars), ‘PARKING_SLOT_20KW’ (parking slot for 20kw electric cars) and ''PARKING_SLOT_50KW’ (parking slot for 50kw electric cars).'
-        enum:
-          - PARKING_SLOT_SEDAN
-          - PARKING_SLOT_20KW
-          - PARKING_SLOT_50KW
+        description: Type of this parking slot.
+        $ref: '#/definitions/ParkingSlotType'
       licensePlateParkedVehicle:
         type: string
         description: License plate of the car parked on this slot. It must be null when creating a parking lot.
@@ -187,5 +276,48 @@ definitions:
         type: string
         format: date-time
         description: Time of parking for the car currently on this slot. It must be null when creating a parking lot.
-        
+    example:
+      name: Test parking slot 1
+      parkingSlotType: PARKING_SLOT_50KW
+      licensePlateParkedVehicle: BV-765-CS
+      parkTime: 2019-08-09T16:52:31.746Z
+  ParkingSlotType:
+    type: string
+    description: 'Type of parking slot. Possible values are ''PARKING_SLOT_SEDAN’ (parking slot for sedan cars), ‘PARKING_SLOT_20KW’ (parking slot for 20kw electric cars) and ''PARKING_SLOT_50KW’ (parking slot for 50kw electric cars).'
+    enum:
+      - PARKING_SLOT_SEDAN
+      - PARKING_SLOT_20KW
+      - PARKING_SLOT_50KW
+    example:
+      PARKING_SLOT_50KW
+  Vehicle:
+    description: Resource representing a vehicle. It can be either a sedan car, 20kw electric car or 50kw electric car.
+    properties:
+      licensePlate:
+        type: string
+        description: License plate of the car parked on this slot. It must be null when creating a parking lot.
+      neededParkingSlotType:
+        description: Type of this parking slot needed by this vehicle.
+        $ref: '#/definitions/ParkingSlotType'
+  Payment:
+    description: Resource representing a payment for a vehicle.
+    properties:
+      price:
+        type: number
+        description: Price for the parking until now.
+      nbHours:
+        type: number
+        description: Time spent on the parking until now.
+      pricingPolicy:
+        description: Parking lot pricing policy.
+        $ref: '#/definitions/PricingPolicy'
+    example:
+      price: 25.50
+      nbHours: 10.5
+      pricingPolicy:
+        20kwPricingPolicy: 10.5 * h + 20
+        50kwPricingPolicy: 12 * h * h + 2
+        sedanPricingPolicy: 10 * h
+        paymentTimeout: 300
+        exitTimeout: 600
 

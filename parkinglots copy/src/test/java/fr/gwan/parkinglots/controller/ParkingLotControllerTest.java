@@ -37,7 +37,7 @@ import fr.gwan.parkinglots.domain.converter.ParkingLotConverter;
 import fr.gwan.parkinglots.repository.ParkingLotRepository;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(ParkingLotsAdminController.class)
+@WebMvcTest(ParkingLotsController.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ParkingLotControllerTest extends TestBase {
@@ -63,9 +63,8 @@ public class ParkingLotControllerTest extends TestBase {
 
 		repository.saveAndFlush(parkingLot);
 
-		mvc.perform(get(BASE_PATH)				
-				.accept("application/json")
-				.contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get(BASE_PATH)
+				.accept("application/json"))
 		.andExpect(status().isOk())
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
 		.andExpect(jsonPath("$.[*].ref").value(hasItem(parkingLot.getRef().toString())))
@@ -126,7 +125,7 @@ public class ParkingLotControllerTest extends TestBase {
 		@SuppressWarnings("unchecked")
 		ParkingLot parkingLot = buildParkingLot().parkingSlots(Collections.EMPTY_SET);
 		mvc.perform(post(BASE_PATH)
-				.accept("application/json")
+				.accept("application/json")//
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(jsonMapper.writeValueAsBytes(converter.toApi(parkingLot))))
 		.andExpect(status().isBadRequest());
@@ -147,18 +146,15 @@ public class ParkingLotControllerTest extends TestBase {
 		// Get the moduleConfig
 		String ref = parkingLot.getRef().toString();
 		mvc.perform(get(BASE_PATH + "/{ref}", ref)
-				.accept("application/json")
-				.contentType(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
+				.accept("application/json"))
+		.andExpect(status().isOk())//
 		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
 		.andExpect(jsonPath("$.ref").value(ref))
 		.andExpect(jsonPath("$.name").value(PARKING_LOT_NAME_TEST))
 		.andExpect(jsonPath("$.parkingSlots[*].name").value(hasItem(String.format(PARKING_SLOT_NAME_TEST, 1))))
 		.andExpect(jsonPath("$.pricingPolicy.sedanPricingPolicy").value(PRICING_POLICY_SEDAN_TEST))
 		.andExpect(jsonPath("$.pricingPolicy.20kwPricingPolicy").value(PRICING_POLICY_20KW_TEST))
-		.andExpect(jsonPath("$.pricingPolicy.50kwPricingPolicy").value(PRICING_POLICY_50KW_TEST))
-		.andExpect(jsonPath("$.pricingPolicy.paymentTimeout").value(PRICING_POLICY_PAYMENT_TIMEOUT_TEST))
-		.andExpect(jsonPath("$.pricingPolicy.exitTimeout").value(PRICING_POLICY_EXIT_TIMEOUT_TEST));
+		.andExpect(jsonPath("$.pricingPolicy.50kwPricingPolicy").value(PRICING_POLICY_50KW_TEST));
 	}
 
 	
@@ -168,8 +164,7 @@ public class ParkingLotControllerTest extends TestBase {
         // Get the moduleConfig
         String ref = UUID.randomUUID().toString();
 		mvc.perform(get(BASE_PATH + "/{ref}", ref)
-				.accept("application/json")
-				.contentType(MediaType.APPLICATION_JSON))
+				.accept("application/json"))
             .andExpect(status().isNotFound());
     }
 
@@ -184,10 +179,8 @@ public class ParkingLotControllerTest extends TestBase {
 
         UUID ref = parkingLot.getRef();
         // Delete the moduleConfig
-        mvc.perform(delete(BASE_PATH + "/{ref}", ref.toString())
-				.accept("application/json")
-				.contentType(MediaType.APPLICATION_JSON))
-        	.andExpect(status().isNoContent());
+        mvc.perform(delete(BASE_PATH + "/{ref}", ref.toString()))
+        		.andExpect(status().isNoContent());
 
         // Validate the database is empty
         List<ParkingLot> parkingLotList = repository.findAll();
@@ -200,9 +193,7 @@ public class ParkingLotControllerTest extends TestBase {
         String ref = UUID.randomUUID().toString();
 
         // Delete the moduleConfig
-        mvc.perform(delete(BASE_PATH + "/{ref}", ref.toString())				
-        		.accept("application/json")
-				.contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete(BASE_PATH + "/{ref}", ref.toString()))
             .andExpect(status().isNotFound());
     }
 
@@ -213,9 +204,7 @@ public class ParkingLotControllerTest extends TestBase {
 				.pricingPolicy(new PricingPolicy()
 						.sedanPricingPolicy(PRICING_POLICY_SEDAN_TEST)
 						._20kwPricingPolicy(PRICING_POLICY_20KW_TEST)
-						._50kwPricingPolicy(PRICING_POLICY_50KW_TEST)
-						.paymentTimeout(PRICING_POLICY_PAYMENT_TIMEOUT_TEST)
-						.exitTimeout(PRICING_POLICY_EXIT_TIMEOUT_TEST));
+						._50kwPricingPolicy(PRICING_POLICY_50KW_TEST));
 		for (int i = 0;i<15;i++)
 		{
 			ParkingSlotTypeEnum type;

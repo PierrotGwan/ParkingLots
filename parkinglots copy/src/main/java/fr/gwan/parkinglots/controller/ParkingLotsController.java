@@ -6,7 +6,7 @@ import fr.gwan.parkinglots.repository.ParkingLotRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
-import io.swagger.api.ApiException;
+import io.swagger.api.AdminApi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,9 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RestController
+@Controller
 @RequestMapping("/admin/parkingLots")
-public class ParkingLotsController {
+public class ParkingLotsController implements AdminApi {
 
     Logger log = LoggerFactory.getLogger(ParkingLotsController.class);
 
@@ -52,20 +50,24 @@ public class ParkingLotsController {
         this.converter = converter;
     }
 
+    @Override
     public Optional<ObjectMapper> getObjectMapper() {
         return Optional.ofNullable(objectMapper);
     }
 
+    @Override
     public Optional<HttpServletRequest> getRequest() {
         return Optional.ofNullable(request);
     }
 
+    @Override
     public Optional<String> getAcceptHeader() {
         return getRequest().map(r -> r.getHeader("Accept"));
     }
 
     
     @GetMapping()
+    @Override
     public ResponseEntity<List<ParkingLot>> adminParkingLotsGet() throws ResponseStatusException {
         try {
         	if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
@@ -83,6 +85,7 @@ public class ParkingLotsController {
 
 
     @DeleteMapping("/{parkingLotRef}")
+    @Override
     public ResponseEntity<Void> adminParkingLotsParkingLotRefDelete(@ApiParam(value = "Ref of the parking lot to delete.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
         	if(getObjectMapper().isPresent()) {
@@ -103,6 +106,7 @@ public class ParkingLotsController {
 
 
     @GetMapping("/{parkingLotRef}")
+    @Override
     public ResponseEntity<ParkingLot> adminParkingLotsParkingLotRefGet(@ApiParam(value = "Ref of the parking lot to retrieve.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
         	if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
@@ -123,6 +127,7 @@ public class ParkingLotsController {
     }
 
     @PostMapping()
+    @Override
     public ResponseEntity<ParkingLot> adminParkingLotsPost(@ApiParam(value = "Contents of the new parking lot." ,required=true )  @Valid @RequestBody ParkingLot parkingLot) throws ResponseStatusException {
         try {
 	        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {

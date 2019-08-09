@@ -30,7 +30,7 @@ public class ParkingSlotConverter
     public fr.gwan.parkinglots.api.model.ParkingSlot toApi(ParkingSlot parkingSlotEntity) {
     	fr.gwan.parkinglots.api.model.ParkingSlot parkingSlotApi = new fr.gwan.parkinglots.api.model.ParkingSlot();
     	parkingSlotApi.setName(parkingSlotEntity.getSlotName());
-    	parkingSlotApi.setParkingSlotType(fr.gwan.parkinglots.api.model.ParkingSlotType.fromValue(parkingSlotEntity.getType().toString()));
+    	parkingSlotApi.setParkingSlotType(fr.gwan.parkinglots.api.model.ParkingSlot.ParkingSlotTypeEnum.fromValue(parkingSlotEntity.getType().toString()));
     	parkingSlotApi.setLicensePlateParkedVehicle(parkingSlotEntity.getLicensePlateParkedVehicle());
     	parkingSlotApi.setParkTime(parkingSlotEntity.getParkTime()!=null?parkingSlotEntity.getParkTime().toInstant().atOffset(ZoneOffset.UTC):null);
         return parkingSlotApi;

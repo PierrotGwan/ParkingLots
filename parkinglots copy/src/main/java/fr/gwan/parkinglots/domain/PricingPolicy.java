@@ -19,7 +19,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Table(name = "pricing_policy")
 public class PricingPolicy implements Serializable {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -47,12 +47,6 @@ public class PricingPolicy implements Serializable {
 
     @Column(name = "50kw_pricing_policy", columnDefinition = "VARCHAR(512)", nullable = false)
     private String _50kwPricingPolicy;
-
-    @Column(name = "payment_timeout", columnDefinition = "INT", nullable = false)
-    private Integer paymentTimeout;
-
-    @Column(name = "exit_timeout", columnDefinition = "INT", nullable = false)
-    private Integer exitTimeout;
 
     public String getSedanPricingPolicy() {
         return sedanPricingPolicy;
@@ -93,32 +87,6 @@ public class PricingPolicy implements Serializable {
         this._50kwPricingPolicy = _50kwPricingPolicy;
     }
 
-    public Integer getPaymentTimeout() {
-        return paymentTimeout;
-    }
-
-    public PricingPolicy paymentTimeout(Integer paymentTimeout) {
-        this.paymentTimeout = paymentTimeout;
-        return this;
-    }
-    
-    public void setPaymentTimeout(Integer paymentTimeout) {
-        this.paymentTimeout = paymentTimeout;
-    }
-
-    public Integer getExitTimeout() {
-        return exitTimeout;
-    }
-
-    public PricingPolicy exitTimeout(Integer exitTimeout) {
-        this.exitTimeout = exitTimeout;
-        return this;
-    }
-    
-    public void setExitTimeout(Integer exitTimeout) {
-        this.exitTimeout = exitTimeout;
-    }
-
     @Override
     public boolean equals(java.lang.Object o) {
         return super.equals(o);
@@ -131,7 +99,7 @@ public class PricingPolicy implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("PricingPolicy [sedanPricingPolicy=%s, _20kwPricingPolicy=%s, _50kwPricingPolicy=%s, paymentTimeout=%d, exitTimeout=%d]", 
-            getSedanPricingPolicy(), get20kwPricingPolicy(), get50kwPricingPolicy(), getPaymentTimeout(), getExitTimeout());
+        return String.format("PricingPolicy [sedanPricingPolicy=%s, _20kwPricingPolicy=%s, _50kwPricingPolicy=%s]", 
+            getSedanPricingPolicy(), get20kwPricingPolicy(), get50kwPricingPolicy());
     }
 }

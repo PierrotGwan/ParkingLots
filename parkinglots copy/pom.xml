@@ -55,29 +55,28 @@
 				<executions>
 					<execution>
 						<id>public-api-codegen</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>src/main/resources/static/parkinglots-api-contract.yaml</inputSpec>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>src/main/resources/static/parkinglots-api-contract.yaml</inputSpec>
 							<language>spring</language>
-							<modelPackage>fr.gwan.parkinglots.api.model</modelPackage>
-							<configOptions>
+                				<modelPackage>fr.gwan.parkinglots.api.model</modelPackage>
+ 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 							</configOptions>
-						</configuration>
+                        </configuration>
 					</execution>
 					<execution>
 						<id>export-to-html-doc</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>src/main/resources/static/parkinglots-api-contract.yaml</inputSpec>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>src/main/resources/static/parkinglots-api-contract.yaml</inputSpec>
 							<language>html</language>
-							<output>${project.build.directory}/generated-sources/html/</output>
-						</configuration>
-					</execution>
+                        </configuration>
+  					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -92,30 +91,26 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>${project.build.directory}/generated-sources/swagger/src/main/java</source>
+								<source>target/generated-sources/swagger/src/main/java</source>
 							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>add-resource</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>target/generated-sources/html</directory>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>step-copy2-api</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <copy file="${project.build.directory}/generated-sources/html/index.html" toFile="src/main/resources/web/api-doc.html"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                    </executions>
-                    </plugin>
 		</plugins>
 	</build>
 
@@ -186,10 +181,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -290,5 +285,6 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 		</dependency>
+
 	</dependencies>
 </project>
