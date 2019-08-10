@@ -137,6 +137,6 @@ public class ParkingLot implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ParkingLot [ref=%s, parkingSlots=%s, pricingPolicy=%s]", ref, parkingSlots, pricingPolicy);
+        return String.format("ParkingLot [ref=%s, name=%s, parkingSlots=%s, pricingPolicy=%s, lastUpdate=%s]", ref, name, parkingSlots, pricingPolicy, lastUpdate);
     }
 }
