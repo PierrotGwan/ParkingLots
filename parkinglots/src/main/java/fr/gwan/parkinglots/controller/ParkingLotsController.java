@@ -89,7 +89,6 @@ public class ParkingLotsController extends AbstractController {
 			@ApiResponse(code = 404, message = "Vehicle or parking lot not found") })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle/{licensePlate}/payment",
 	produces = { "application/json" }, 
-	consumes = { "application/json" },
 	method = RequestMethod.GET)
 	public ResponseEntity<Payment> parkingLotParkingLotRefVehicleLicensePlatePaymentGet(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
@@ -139,8 +138,6 @@ public class ParkingLotsController extends AbstractController {
 			@ApiResponse(code = 404, message = "Vehicle or parking lot not found"),
 			@ApiResponse(code = 408, message = "Payment timeout. Need to request a new price") })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle/{licensePlate}/payment",
-	produces = { "application/json" }, 
-	consumes = { "application/json" },
 	method = RequestMethod.POST)
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlatePaymentPost(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
@@ -183,8 +180,6 @@ public class ParkingLotsController extends AbstractController {
 			@ApiResponse(code = 404, message = "Vehicle or parking lot not found"),
 			@ApiResponse(code = 408, message = "Exit timeout. Need to request a new price and pay again") })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle/{licensePlate}",
-	produces = { "application/json" }, 
-	consumes = { "application/json" },
 	method = RequestMethod.DELETE)
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlateDelete(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {

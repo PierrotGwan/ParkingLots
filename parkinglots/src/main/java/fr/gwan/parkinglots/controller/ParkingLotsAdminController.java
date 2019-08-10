@@ -61,7 +61,6 @@ public class ParkingLotsAdminController extends AbstractController {
         @ApiResponse(code = 200, message = "Parking lots retrieved successfully.", response = ParkingLot.class, responseContainer = "List") })
     @RequestMapping(value = "/admin/parkingLots",
         produces = { "application/json" }, 
-        consumes = { "application/json" },
         method = RequestMethod.GET)
     public ResponseEntity<List<ParkingLot>> adminParkingLotsGet() throws ResponseStatusException {
         try {
@@ -85,8 +84,6 @@ public class ParkingLotsAdminController extends AbstractController {
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Parking lot deleted successfully.") })
     @RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
         method = RequestMethod.DELETE)
     public ResponseEntity<Void> adminParkingLotsParkingLotRefDelete(@ApiParam(value = "Ref of the parking lot to delete.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
@@ -115,7 +112,6 @@ public class ParkingLotsAdminController extends AbstractController {
         @ApiResponse(code = 200, message = "Parking lot retrieved successfully.", response = ParkingLot.class) })
     @RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
         produces = { "application/json" }, 
-        consumes = { "application/json" },
         method = RequestMethod.GET)
     public ResponseEntity<ParkingLot> adminParkingLotsParkingLotRefGet(@ApiParam(value = "Ref of the parking lot to retrieve.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
