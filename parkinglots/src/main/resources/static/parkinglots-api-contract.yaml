@@ -8,9 +8,9 @@ consumes:
 produces:
   - application/json
 tags:
-  - name: ParkingLot
+  - name: ParkingLotsAdministration
     description: Parking lot operations allow administrators to manage the parking lots globally.
-  - name: Vehicle
+  - name: ParkingLotsVehicle
     description: Vehicle operations allow vehicles to enter / exit a parking lot.
 paths:
   /admin/parkingLots:
@@ -32,12 +32,12 @@ paths:
         '400':
           description: Provided parking lot check failed.
       tags:
-        - ParkingLot       
+        - ParkingLotsAdministration       
     get:
       summary: Parking lot list retrieval
       description: Retrieves the list of existing parking lots.
       tags:
-        - ParkingLot
+        - ParkingLotsAdministration
       responses:
         '200':
           description: Parking lots retrieved successfully.
@@ -56,7 +56,7 @@ paths:
           type: string
           required: true
       tags:
-        - ParkingLot
+        - ParkingLotsAdministration
       responses:
         '200':
           description: Parking lot retrieved successfully.
@@ -74,13 +74,13 @@ paths:
           type: string
           required: true
       tags:
-        - ParkingLot
+        - ParkingLotsAdministration
       responses:
         '204':
           description: Parking lot deleted successfully.
         '404':
           description: Parking lot not found.
-  /parkingLot/{parkingLotRef}/vehicle:
+  /parkingLots/{parkingLotRef}/vehicle:
     post:
       summary: Enter a parking lot
       description: Enter an existing parking lot with a vehicle.
@@ -101,9 +101,11 @@ paths:
           description: Parking lot entered successfully. Vehicle must access the returned parking slot
           schema:
             $ref: '#/definitions/ParkingSlot'
+        '404':
+          description: Parking lot not found or no parking slot left
       tags:
-        - Vehicle       
-  /parkingLot/{parkingLotRef}/vehicle/{licensePlate}/payment:
+        - ParkingLotsVehicle       
+  /parkingLots/{parkingLotRef}/vehicle/{licensePlate}/payment:
     get:
       summary: Request payment for a vehicle
       description: Request the payment price for a parked vehicle.
@@ -126,7 +128,7 @@ paths:
         '404':
           description: Vehicle or parking lot not found
       tags:
-        - Vehicle       
+        - ParkingLotsVehicle       
     post:
       summary: Report payment for a vehicle
       description: Report payment for a parked vehicle. The vehicle has until PricingPolicy.paymentTimeout seconds after price computation for this request to be accepted
@@ -149,8 +151,8 @@ paths:
         '408':
           description: Payment timeout. Need to request a new price
       tags:
-        - Vehicle       
-  /parkingLot/{parkingLotRef}/vehicle/{licensePlate}:
+        - ParkingLotsVehicle       
+  /parkingLots/{parkingLotRef}/vehicle/{licensePlate}:
     delete:
       summary: Request exit for a vehicle
       description: Request parking lot exit for a parked vehicle. The vehicle has until PricingPolicy.exitTimeout seconds after payment for this request to be accepted 
@@ -166,10 +168,8 @@ paths:
           type: string
           required: true
       responses:
-        '200':
-          description: Payment computed successfully
-          schema:
-            $ref: '#/definitions/Payment'
+        '204':
+          description: Vehicle deleted successfully
         '403':
           description: Payment required before exit
         '404':
@@ -177,7 +177,7 @@ paths:
         '408':
           description: Exit timeout. Need to request a new price and pay again
       tags:
-        - Vehicle       
+        - ParkingLotsVehicle       
 definitions:
   ParkingLot:
     description: Resource representing a parking lot. It must contain a list of parking slots
@@ -196,6 +196,10 @@ definitions:
       pricingPolicy:
         description: Parking lot pricing policy.
         $ref: '#/definitions/PricingPolicy'
+    required:
+      - name
+      - parkingSlots
+      - pricingPolicy
     example:
       ref: 48548c27-48b7-4d57-b3e3-781ddc6c20c6 
       name: Test parking lot
@@ -254,6 +258,12 @@ definitions:
       exitTimeout:
         type: integer
         description: Maximum number of seconds allowed after payment before exit
+    required:
+      - sedanPricingPolicy
+      - 20kwPricingPolicy
+      - 50kwPricingPolicy
+      - paymentTimeout
+      - exitTimeout
     example:
       20kwPricingPolicy: 10.5 * h + 20
       50kwPricingPolicy: 12 * h * h + 2
@@ -276,6 +286,9 @@ definitions:
         type: string
         format: date-time
         description: Time of parking for the car currently on this slot. It must be null when creating a parking lot.
+    required:
+      - name
+      - parkingSlotType
     example:
       name: Test parking slot 1
       parkingSlotType: PARKING_SLOT_50KW
@@ -299,6 +312,12 @@ definitions:
       neededParkingSlotType:
         description: Type of this parking slot needed by this vehicle.
         $ref: '#/definitions/ParkingSlotType'
+    required:  
+      - licensePlate
+      - neededParkingSlotType
+    example:
+      licensePlate: BV-765-CS
+      neededParkingSlotType: PARKING_SLOT_SEDAN
   Payment:
     description: Resource representing a payment for a vehicle.
     properties:
@@ -311,6 +330,10 @@ definitions:
       pricingPolicy:
         description: Parking lot pricing policy.
         $ref: '#/definitions/PricingPolicy'
+    required:  
+      - price
+      - nbHours
+      - pricingPolicy
     example:
       price: 25.50
       nbHours: 10.5

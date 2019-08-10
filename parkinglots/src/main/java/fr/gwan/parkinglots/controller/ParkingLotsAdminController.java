@@ -7,6 +7,8 @@ import fr.gwan.parkinglots.repository.ParkingLotRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import io.swagger.api.ApiException;
+import org.mariuszgromada.math.mxparser.Function;
+import org.mariuszgromada.math.mxparser.Expression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +34,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@Api(value = "admin", description = "The parking lots admin API")
-public class ParkingLotsAdminController {
+public class ParkingLotsAdminController extends AbstractController {
 
     Logger log = LoggerFactory.getLogger(ParkingLotsAdminController.class);
 
-    private final ObjectMapper objectMapper;
-
-    private final HttpServletRequest request;
+    private final ParkingLotConverter converter;
 
     private final ParkingLotRepository repository;
     
-    private final ParkingLotConverter converter;
-
-    public ParkingLotsAdminController(ObjectMapper objectMapper, HttpServletRequest request, ParkingLotRepository repository, ParkingLotConverter converter) {
-        this.objectMapper = objectMapper;
-        this.request = request;
+    public ParkingLotsAdminController(ObjectMapper objectMapper, HttpServletRequest request, ParkingLotConverter converter, ParkingLotRepository repository) {
+        super(objectMapper, request);
         this.repository = repository;
         this.converter = converter;
     }
@@ -155,7 +151,17 @@ public class ParkingLotsAdminController {
 	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A new parking lot cannot already have a ref");
 	            if (parkingLot.getParkingSlots().size() == 0)
 	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A parking lot must have parking slots");
-
+	            // Validate parsing policy
+	            Function sedan = new Function("f(h) = " + parkingLot.getPricingPolicy().getSedanPricingPolicy());
+	            if (sedan.checkSyntax()!=Function.NO_SYNTAX_ERRORS)
+	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sedan pricing policy syntax error");
+	            Function _20kw = new Function("f(h) = " + parkingLot.getPricingPolicy().get20kwPricingPolicy());
+	            if (_20kw.checkSyntax()!=Function.NO_SYNTAX_ERRORS)
+	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "20kw pricing policy syntax error");
+	            Function _50kw = new Function("f(h) = " + parkingLot.getPricingPolicy().get50kwPricingPolicy());
+	            if (_50kw.checkSyntax()!=Function.NO_SYNTAX_ERRORS)
+	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "50kw pricing policy syntax error");
+	            
 	        	fr.gwan.parkinglots.domain.ParkingLot entityParkingLot = converter.toEntity(parkingLot);
 	        	entityParkingLot.setLastUpdate(new Date());
 	        	entityParkingLot = repository.save(entityParkingLot);

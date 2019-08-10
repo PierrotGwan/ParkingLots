@@ -1,6 +1,5 @@
 package fr.gwan.parkinglots.domain;
 
-import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -63,6 +62,10 @@ public class ParkingSlot {
     @Temporal(TemporalType.TIMESTAMP)
     private Date parkTime;
     
+    @Column(name = "price_computing_time", columnDefinition = "DATETIME", nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date priceComputingTime;
+    
     public ParkingLot getParkingLot() { return parkingLot; }
 
     public void setParkingLot(ParkingLot parkingLot) { this.parkingLot = parkingLot; }
@@ -118,6 +121,19 @@ public class ParkingSlot {
     
     public void setParkTime(Date parkTime) {
         this.parkTime = parkTime;
+    }
+
+    public Date getPriceComputingTime() {
+        return priceComputingTime;
+    }
+    
+    public ParkingSlot priceComputingTime(Date priceComputingTime) {
+        this.priceComputingTime = priceComputingTime;
+        return this;
+    }
+    
+    public void setPriceComputingTime(Date priceComputingTime) {
+        this.priceComputingTime = priceComputingTime;
     }
 
     @Override
