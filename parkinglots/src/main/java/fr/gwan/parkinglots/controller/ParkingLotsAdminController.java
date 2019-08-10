@@ -70,9 +70,11 @@ public class ParkingLotsAdminController extends AbstractController {
         method = RequestMethod.GET)
     public ResponseEntity<List<ParkingLot>> adminParkingLotsGet() throws ResponseStatusException {
         try {
+        	log.debug("REST request to find all parking lots");
         	if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
                 if (getAcceptHeader().get().contains("application/json")) {
                 	List<fr.gwan.parkinglots.domain.ParkingLot> entityParkingLots = repository.findAll();
+                	log.debug("Parking lots retrieved: {}", entityParkingLots);
 					return new ResponseEntity<List<ParkingLot>>(converter.toApi(entityParkingLots), HttpStatus.OK);
                 }
         	}
@@ -93,13 +95,16 @@ public class ParkingLotsAdminController extends AbstractController {
         method = RequestMethod.DELETE)
     public ResponseEntity<Void> adminParkingLotsParkingLotRefDelete(@ApiParam(value = "Ref of the parking lot to delete.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
+        	log.debug("REST request to delete a parking lot with ref: {}", parkingLotRef);
         	if(getObjectMapper().isPresent()) {
                UUID id = converter.map(parkingLotRef);
         		if (repository.existsById(id))
         		{
         			repository.deleteById(converter.map(parkingLotRef));
+                	log.debug("Parking lot deleted");
                     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         		}
+            	log.debug("Parking lot not found");
         		return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         	}
         }
@@ -119,13 +124,14 @@ public class ParkingLotsAdminController extends AbstractController {
         method = RequestMethod.GET)
     public ResponseEntity<ParkingLot> adminParkingLotsParkingLotRefGet(@ApiParam(value = "Ref of the parking lot to retrieve.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
         try {
+        	log.debug("REST request to retrieve a parking lot with ref: {}", parkingLotRef);
         	if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
                 if (getAcceptHeader().get().contains("application/json")) {
                     Optional<fr.gwan.parkinglots.domain.ParkingLot> optional = repository.findById(converter.map(parkingLotRef));
                 	if (optional.isPresent())
 					{
-						ParkingLot parkingLot = converter.toApi(optional.get());
-				    	return new ResponseEntity<ParkingLot>(parkingLot, HttpStatus.OK);
+                    	log.debug("Parking lot retrieved: {}", optional.get());
+				    	return new ResponseEntity<ParkingLot>(converter.toApi(optional.get()), HttpStatus.OK);
 					}
                 }
         	}
@@ -146,6 +152,7 @@ public class ParkingLotsAdminController extends AbstractController {
         method = RequestMethod.POST)
     public ResponseEntity<ParkingLot> adminParkingLotsPost(@ApiParam(value = "Contents of the new parking lot." ,required=true )  @Valid @RequestBody ParkingLot parkingLot) throws ResponseStatusException {
         try {
+        	log.debug("REST request to create a parking lot: {}", parkingLot);
 	        if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
 	            if (parkingLot.getRef() != null)
 	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A new parking lot cannot already have a ref");
@@ -163,6 +170,7 @@ public class ParkingLotsAdminController extends AbstractController {
 	            	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "50kw pricing policy syntax error");
 	            
 	        	fr.gwan.parkinglots.domain.ParkingLot entityParkingLot = converter.toEntity(parkingLot);
+	        	log.debug("Parking lot created: {}", entityParkingLot);
 	        	entityParkingLot.setLastUpdate(new Date());
 	        	entityParkingLot = repository.save(entityParkingLot);
 	

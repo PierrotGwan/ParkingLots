@@ -141,6 +141,70 @@ public class ParkingLotsControllerTest extends TestBase {
 
 	@Test
 	@Transactional
+	public void requestPaymentFor20kwVehicle() throws Exception {
+		ParkingLot parkingLot = buildParkingLot();
+
+		parkingLotRepository.saveAndFlush(parkingLot);
+
+		String ref = parkingLot.getRef().toString();
+		
+		ParkingSlot parkingSlot = parkingSlotRepository.findAllWithEagerRelationships(parkingLot.getRef(), ParkingSlotTypeEnum.PARKING_SLOT_20KW).get(0);
+		parkingSlot.setLicensePlateParkedVehicle(VEHICLE_LICENSE_PLATE_TEST);
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.HOUR_OF_DAY, -5);
+		parkingSlot.setParkTime(calendar.getTime());
+		
+		parkingSlotRepository.saveAndFlush(parkingSlot);
+		
+		mvc.perform(get(BASE_PATH + "/{ref}/vehicle/{licencePlate}/payment", ref, VEHICLE_LICENSE_PLATE_TEST)			
+				.accept("application/json")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+		.andExpect(jsonPath("$.price").isNumber())
+		.andExpect(jsonPath("$.nbHours").value(closeTo(new BigDecimal(5),new BigDecimal(1))))
+		.andExpect(jsonPath("$.pricingPolicy.sedanPricingPolicy").value(PRICING_POLICY_SEDAN_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.20kwPricingPolicy").value(PRICING_POLICY_20KW_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.50kwPricingPolicy").value(PRICING_POLICY_50KW_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.paymentTimeout").value(PRICING_POLICY_PAYMENT_TIMEOUT_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.exitTimeout").value(PRICING_POLICY_EXIT_TIMEOUT_TEST));
+	}
+
+	@Test
+	@Transactional
+	public void requestPaymentFor50kwVehicle() throws Exception {
+		ParkingLot parkingLot = buildParkingLot();
+
+		parkingLotRepository.saveAndFlush(parkingLot);
+
+		String ref = parkingLot.getRef().toString();
+		
+		ParkingSlot parkingSlot = parkingSlotRepository.findAllWithEagerRelationships(parkingLot.getRef(), ParkingSlotTypeEnum.PARKING_SLOT_50KW).get(0);
+		parkingSlot.setLicensePlateParkedVehicle(VEHICLE_LICENSE_PLATE_TEST);
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.HOUR_OF_DAY, -5);
+		parkingSlot.setParkTime(calendar.getTime());
+		
+		parkingSlotRepository.saveAndFlush(parkingSlot);
+		
+		mvc.perform(get(BASE_PATH + "/{ref}/vehicle/{licencePlate}/payment", ref, VEHICLE_LICENSE_PLATE_TEST)			
+				.accept("application/json")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+		.andExpect(jsonPath("$.price").isNumber())
+		.andExpect(jsonPath("$.nbHours").value(closeTo(new BigDecimal(5),new BigDecimal(1))))
+		.andExpect(jsonPath("$.pricingPolicy.sedanPricingPolicy").value(PRICING_POLICY_SEDAN_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.20kwPricingPolicy").value(PRICING_POLICY_20KW_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.50kwPricingPolicy").value(PRICING_POLICY_50KW_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.paymentTimeout").value(PRICING_POLICY_PAYMENT_TIMEOUT_TEST))
+		.andExpect(jsonPath("$.pricingPolicy.exitTimeout").value(PRICING_POLICY_EXIT_TIMEOUT_TEST));
+	}
+
+	@Test
+	@Transactional
 	public void requestPaymentForNonExistingVehicle() throws Exception {
 		ParkingLot parkingLot = buildParkingLot();
 

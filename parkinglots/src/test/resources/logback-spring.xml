@@ -12,19 +12,6 @@
 		<level value="DEBUG" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<logger
-		name="org.springframework.web.filter.CommonsRequestLoggingFilter">
-		<level value="DEBUG" />
-		<appender-ref ref="STDOUT" />
-	</logger>
-	<logger name="org.springframework.web.client.RestTemplate">
-		<level value="DEBUG" />
-		<appender-ref ref="STDOUT" />
-	</logger>
-	<logger name="org.zalando.logbook.Logbook">
-		<level value="TRACE" />
-		<appender-ref ref="STDOUT" />
-	</logger>
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>

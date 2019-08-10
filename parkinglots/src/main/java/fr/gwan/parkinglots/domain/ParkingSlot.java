@@ -144,6 +144,6 @@ public class ParkingSlot {
     @Override
     public String toString() {
         return String.format("ParkingSlot [slotName=%s, type=%s, licensePlateParkedVehicle=%s, parkTime=%s]", 
-            getSlotName(), getType(), getLicensePlateParkedVehicle(), getParkTime().toString());
+            getSlotName(), getType(), getLicensePlateParkedVehicle(), (getParkTime()!=null)?getParkTime().toString():null);
     }
 }
