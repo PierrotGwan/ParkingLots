@@ -4,6 +4,8 @@ Toll Parking Library
 # How to build from sources
 ## Prerequisites
 - Use a Linux machine
+- The local TCP port 9999 should not be in use
+- Install a Java [JDK](https://jdk.java.net/)
 - Install [git](https://git-scm.com/)
 - Install [maven](https://maven.apache.org/)
 - Install [MySQL](https://www.mysql.com/) or [MariaDB](https://mariadb.org/) 

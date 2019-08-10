@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
+@Api(tags="ParkingLotsVehicle")
 public class ParkingLotsController extends AbstractController {
 
 	private final ParkingSlotConverter parkingSlotconverter;
@@ -51,7 +52,7 @@ public class ParkingLotsController extends AbstractController {
 
 	Logger log = LoggerFactory.getLogger(ParkingLotsController.class);
 
-	@ApiOperation(value = "Enter a parking lot", nickname = "parkingLotParkingLotRefVehiclePost", notes = "Enter an existing parking lot with a vehicle.", response = ParkingSlot.class, tags={ "Vehicle", })
+	@ApiOperation(value = "Enter a parking lot", nickname = "parkingLotParkingLotRefVehiclePost", notes = "Enter an existing parking lot with a vehicle.", response = ParkingSlot.class)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Parking lot entered successfully. Vehicle must access the returned parking slot", response = ParkingSlot.class) })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle",
@@ -82,7 +83,7 @@ public class ParkingLotsController extends AbstractController {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@ApiOperation(value = "Request payment for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlatePaymentGet", notes = "Request the payment price for a parked vehicle.", response = Payment.class, tags={ "Vehicle", })
+	@ApiOperation(value = "Request payment for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlatePaymentGet", notes = "Request the payment price for a parked vehicle.", response = Payment.class)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Payment computed successfully", response = Payment.class),
 			@ApiResponse(code = 404, message = "Vehicle or parking lot not found") })
@@ -131,7 +132,7 @@ public class ParkingLotsController extends AbstractController {
 	}
 
 
-	@ApiOperation(value = "Report payment for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlatePaymentPost", notes = "Report payment for a parked vehicle. The vehicle has until PricingPolicy.paymentTimeout seconds after price computation for this request to be accepted", tags={ "Vehicle", })
+	@ApiOperation(value = "Report payment for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlatePaymentPost", notes = "Report payment for a parked vehicle. The vehicle has until PricingPolicy.paymentTimeout seconds after price computation for this request to be accepted")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Payment processed successfully"),
 			@ApiResponse(code = 403, message = "Need to request a price first"),
@@ -175,7 +176,7 @@ public class ParkingLotsController extends AbstractController {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@ApiOperation(value = "Request exit for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlateDelete", notes = "Request parking lot exit for a parked vehicle. The vehicle has until PricingPolicy.exitTimeout seconds after payment for this request to be accepted", response = Payment.class, tags={ "Vehicle", })
+	@ApiOperation(value = "Request exit for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlateDelete", notes = "Request parking lot exit for a parked vehicle. The vehicle has until PricingPolicy.exitTimeout seconds after payment for this request to be accepted", response = Payment.class)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 204, message = "Vehicle deleted successfully"),
 			@ApiResponse(code = 403, message = "Payment required before exit"),

@@ -6,19 +6,13 @@ import fr.gwan.parkinglots.repository.ParkingLotRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
-import io.swagger.api.ApiException;
 import org.mariuszgromada.math.mxparser.Function;
-import org.mariuszgromada.math.mxparser.Expression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
+@Api(tags="ParkingLotsAdministration")
 public class ParkingLotsAdminController extends AbstractController {
 
     Logger log = LoggerFactory.getLogger(ParkingLotsAdminController.class);
@@ -61,7 +56,7 @@ public class ParkingLotsAdminController extends AbstractController {
     }
 
     
-    @ApiOperation(value = "Parking lot list retrieval", nickname = "adminParkingLotsGet", notes = "Retrieves the list of existing parking lots.", response = ParkingLot.class, responseContainer = "List", tags={ "ParkingLot", })
+    @ApiOperation(value = "Parking lot list retrieval", nickname = "adminParkingLotsGet", notes = "Retrieves the list of existing parking lots.", response = ParkingLot.class, responseContainer = "List")
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Parking lots retrieved successfully.", response = ParkingLot.class, responseContainer = "List") })
     @RequestMapping(value = "/admin/parkingLots",
@@ -86,7 +81,7 @@ public class ParkingLotsAdminController extends AbstractController {
     }
 
 
-    @ApiOperation(value = "Parking lot deletion", nickname = "adminParkingLotsParkingLotRefDelete", notes = "Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)", tags={ "ParkingLot", })
+    @ApiOperation(value = "Parking lot deletion", nickname = "adminParkingLotsParkingLotRefDelete", notes = "Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)")
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "Parking lot deleted successfully.") })
     @RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
@@ -115,7 +110,7 @@ public class ParkingLotsAdminController extends AbstractController {
     }
 
 
-    @ApiOperation(value = "Parking lot retrieval", nickname = "adminParkingLotsParkingLotRefGet", notes = "Retrieves the parking lot corresponding to the provided ref.", response = ParkingLot.class, tags={ "ParkingLot", })
+    @ApiOperation(value = "Parking lot retrieval", nickname = "adminParkingLotsParkingLotRefGet", notes = "Retrieves the parking lot corresponding to the provided ref.", response = ParkingLot.class)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Parking lot retrieved successfully.", response = ParkingLot.class) })
     @RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
@@ -142,7 +137,7 @@ public class ParkingLotsAdminController extends AbstractController {
         return new ResponseEntity<ParkingLot>(HttpStatus.NOT_FOUND);
     }
 
-    @ApiOperation(value = "Create a parking lot", nickname = "adminParkingLotsPost", notes = "Creates a new parking lot for later vehicle management.", response = ParkingLot.class, tags={ "ParkingLot", })
+    @ApiOperation(value = "Create a parking lot", nickname = "adminParkingLotsPost", notes = "Creates a new parking lot for later vehicle management.", response = ParkingLot.class)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Parking lot created successfully.", response = ParkingLot.class),
         @ApiResponse(code = 400, message = "Provided parking lot check failed.") })
