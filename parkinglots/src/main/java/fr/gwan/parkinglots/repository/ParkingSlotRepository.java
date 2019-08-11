@@ -23,7 +23,8 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, UUID> 
     		@Param("ref") UUID ref,
     		@Param("type") ParkingSlotTypeEnum type);
     @Query("select parkingSlot from ParkingSlot parkingSlot "
-    		+ "inner join parkingSlot.parkingLot parkingLot "
+    		+ "inner join fetch parkingSlot.parkingLot parkingLot "
+    		+ "join fetch parkingLot.pricingPolicy pricingPolicy "
     		+ "where parkingLot.ref = :ref "
     		+ "and parkingSlot.licensePlateParkedVehicle = :license_plate_parked_vehicle")
     ParkingSlot findOneWithEagerRelationships(

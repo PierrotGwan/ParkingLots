@@ -21,6 +21,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -41,10 +42,12 @@ public class ParkingLot implements Serializable {
     @Column(columnDefinition = "BINARY(16)")
     private UUID ref;
 
-    @Column(name = "name", columnDefinition = "CHAR(20)", nullable = false)
+    @NotNull
+    @Column(name = "name", columnDefinition = "CHAR(20)")
     private String name;
 
-    @Column(name = "last_update", columnDefinition = "DATETIME", nullable = false)
+    @NotNull
+    @Column(name = "last_update", columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdate;
     
@@ -52,6 +55,7 @@ public class ParkingLot implements Serializable {
     private Set<ParkingSlot> parkingSlots = new HashSet<>();
 
     
+    @NotNull
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     private PricingPolicy pricingPolicy;
     

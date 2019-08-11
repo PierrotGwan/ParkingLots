@@ -76,7 +76,7 @@ public class ParkingLotsController extends AbstractController {
 							List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef),
 									ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString()));
 							if (parkingSlots.size()==0)
-								return new ResponseEntity<ParkingSlot>(HttpStatus.NOT_FOUND);
+								throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking lot not found or no parking slot left");
 							entityParkingSlot = parkingSlots.get((int) (Math.random() * parkingSlots.size()));
 							entityParkingSlot.setLicensePlateParkedVehicle(vehicle.getLicensePlate());
 							entityParkingSlot.setParkTime(new Date());
@@ -95,10 +95,13 @@ public class ParkingLotsController extends AbstractController {
 				}
 			}
 		}
+		catch (ResponseStatusException e) {
+			throw e;
+		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 	@ApiOperation(value = "Request payment for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlatePaymentGet", notes = "Request the payment price for a parked vehicle.", response = Payment.class)
@@ -115,7 +118,7 @@ public class ParkingLotsController extends AbstractController {
 				if (getAcceptHeader().get().contains("application/json")) {
 					fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
 					if (parkingSlot==null)
-						return new ResponseEntity<Payment>(HttpStatus.NOT_FOUND);
+						throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehicle or parking lot not found");
 					Payment payment = new Payment()
 							.nbHours(new BigDecimal((new Date().getTime() - parkingSlot.getParkTime().getTime())/3600000.))
 							.pricingPolicy(pricingPolicyConverter.toApi(parkingSlot.getParkingLot().getPricingPolicy()));
@@ -142,10 +145,13 @@ public class ParkingLotsController extends AbstractController {
 
 			}
 		}
+		catch(ResponseStatusException e) {
+			throw e;
+		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -164,17 +170,17 @@ public class ParkingLotsController extends AbstractController {
 			if(getObjectMapper().isPresent()) {
 				fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
 				if (parkingSlot==null)
-					return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+					throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehicle or parking lot not found");
 				if (parkingSlot.getPriceComputingTime()==null)
 					throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Need to request a price first");
 				long interval = (new Date().getTime() - parkingSlot.getPriceComputingTime().getTime()) / 1000;
 				if (parkingSlot.getParkingLot().getPricingPolicy().getPaymentTimeout() < interval)
 				{
-					parkingSlot.setParkTime(parkingSlot.getPriceComputingTime());
-					parkingSlot.setPriceComputingTime(null);
 					repository.saveAndFlush(parkingSlot);
 					throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Payment timeout. Need to request a new price");
 				}
+				parkingSlot.setParkTime(parkingSlot.getPriceComputingTime());
+				parkingSlot.setPriceComputingTime(null);
 				repository.saveAndFlush(parkingSlot);
 				log.debug("Payment processed: {}", parkingLotRef, licensePlate);
 				return new ResponseEntity<Void>(HttpStatus.CREATED);
@@ -187,7 +193,7 @@ public class ParkingLotsController extends AbstractController {
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 	@ApiOperation(value = "Request exit for a vehicle", nickname = "parkingLotParkingLotRefVehicleLicensePlateDelete", notes = "Request parking lot exit for a parked vehicle. The vehicle has until PricingPolicy.exitTimeout seconds after payment for this request to be accepted", response = Payment.class)
@@ -205,7 +211,7 @@ public class ParkingLotsController extends AbstractController {
 			if(getObjectMapper().isPresent()) {
 				fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
 				if (parkingSlot==null)
-					return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+					throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehicle or parking lot not found");
 				if (parkingSlot.getPriceComputingTime()!=null)
 					throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required before exit");
 				long interval = (new Date().getTime() - parkingSlot.getParkTime().getTime()) / 1000;
@@ -224,6 +230,6 @@ public class ParkingLotsController extends AbstractController {
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 }

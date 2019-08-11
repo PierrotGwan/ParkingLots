@@ -77,7 +77,7 @@ public class ParkingLotsAdminController extends AbstractController {
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -99,14 +99,16 @@ public class ParkingLotsAdminController extends AbstractController {
 					log.debug("Parking lot deleted");
 					return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 				}
-				log.debug("Parking lot not found");
-				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking lot not found");
 			}
+		}
+		catch(ResponseStatusException e) {
+			throw e;
 		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -128,13 +130,17 @@ public class ParkingLotsAdminController extends AbstractController {
 						log.debug("Parking lot retrieved: {}", optional.get());
 						return new ResponseEntity<ParkingLot>(converter.toApi(optional.get()), HttpStatus.OK);
 					}
+					throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking lot not found");
 				}
 			}
+		}
+		catch(ResponseStatusException e) {
+			throw e;
 		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
-		return new ResponseEntity<ParkingLot>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<ParkingLot>(HttpStatus.BAD_REQUEST);
 	}
 
 	@ApiOperation(value = "Create a parking lot", nickname = "adminParkingLotsPost", notes = "Creates a new parking lot for later vehicle management.", response = ParkingLot.class)
