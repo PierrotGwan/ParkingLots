@@ -78,6 +78,8 @@ paths:
       responses:
         '204':
           description: Parking lot deleted successfully.
+        '403':
+          description: Cannot delete a non-empty parking lot.
         '404':
           description: Parking lot not found.
   /parkingLots/{parkingLotRef}/vehicle:

@@ -5,11 +5,13 @@ import fr.gwan.parkinglots.domain.converter.ParkingLotConverter;
 import fr.gwan.parkinglots.repository.ParkingLotRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.swagger.annotations.*;
 import org.mariuszgromada.math.mxparser.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +22,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.OptimisticLockException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +88,7 @@ public class ParkingLotsAdminController extends AbstractController {
 	@ApiOperation(value = "Parking lot deletion", nickname = "adminParkingLotsParkingLotRefDelete", notes = "Deletes the parking lot corresponding to the provided ref. The parking lot must be empty (i.e. no vehicle parked there)")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 204, message = "Parking lot deleted successfully."),
+			@ApiResponse(code = 403, message = "Cannot delete a non-empty parking lot.", response = ParkingLot.class) ,
 			@ApiResponse(code = 404, message = "Parking lot not found") })
 	@RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
 	method = RequestMethod.DELETE)
@@ -92,14 +97,26 @@ public class ParkingLotsAdminController extends AbstractController {
 		try {
 			log.debug("REST request to delete a parking lot with ref: {}", parkingLotRef);
 			if(getObjectMapper().isPresent()) {
-				UUID id = converter.map(parkingLotRef);
-				if (repository.existsById(id))
+				while (true)
 				{
-					repository.deleteById(converter.map(parkingLotRef));
-					log.debug("Parking lot deleted");
-					return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+					try {
+						Optional<fr.gwan.parkinglots.domain.ParkingLot> optional = repository.findById(converter.map(parkingLotRef));
+						if (optional.isPresent())
+						{
+							if (optional.get().getParkingSlots().stream()
+									.anyMatch(parkingLotCheck -> parkingLotCheck.getLicensePlateParkedVehicle()!=null || parkingLotCheck.getParkTime()!=null))
+								throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete a non-empty parking lot");
+							repository.delete(optional.get());
+							log.debug("Parking lot deleted");
+							return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+						}
+						throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking lot not found");
+					}
+					catch(OptimisticLockException e) {
+						log.debug("Concurrent save detected, retrying");
+						continue;
+					}
 				}
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking lot not found");
 			}
 		}
 		catch(ResponseStatusException e) {
@@ -161,6 +178,9 @@ public class ParkingLotsAdminController extends AbstractController {
 						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A new parking lot cannot already have a ref");
 					if (parkingLot.getParkingSlots().size() == 0)
 						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A parking lot must have parking slots");
+					if (parkingLot.getParkingSlots().stream()
+							.anyMatch(parkingLotCheck -> parkingLotCheck.getLicensePlateParkedVehicle()!=null || parkingLotCheck.getParkTime()!=null))
+						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A new parking lot must be empty");
 					// Validate parsing policy
 					Function sedan = new Function("f(h) = " + parkingLot.getPricingPolicy().getSedanPricingPolicy());
 					if (sedan.checkSyntax()!=Function.NO_SYNTAX_ERRORS)

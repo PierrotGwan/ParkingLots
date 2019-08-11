@@ -72,6 +72,7 @@ public class ParkingLotsController extends AbstractController {
 				if (getAcceptHeader().get().contains("application/json")) {
 					fr.gwan.parkinglots.domain.ParkingSlot entityParkingSlot = null;
 					while (true)
+					{
 						try {
 							List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef),
 									ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString()));
@@ -83,12 +84,13 @@ public class ParkingLotsController extends AbstractController {
 							repository.saveAndFlush(entityParkingSlot);
 							break;
 						}
-					catch(DataIntegrityViolationException e) {
-						throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
-					}
-					catch(OptimisticLockException e) {
-						log.debug("Concurrent save detected, retrying");
-						continue;
+						catch(DataIntegrityViolationException e) {
+							throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
+						}
+						catch(OptimisticLockException e) {
+							log.debug("Concurrent save detected, retrying");
+							continue;
+						}
 					}
 					log.debug("Parking slot found: {}", entityParkingSlot);
 					return new ResponseEntity<ParkingSlot>(parkingSlotconverter.toApi(entityParkingSlot), HttpStatus.CREATED);
