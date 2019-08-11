@@ -164,10 +164,9 @@ public class ParkingLotsAdminController extends AbstractController {
 						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "50kw pricing policy syntax error");
 
 					fr.gwan.parkinglots.domain.ParkingLot entityParkingLot = converter.toEntity(parkingLot);
-					log.debug("Parking lot created: {}", entityParkingLot);
 					entityParkingLot.setLastUpdate(new Date());
-					entityParkingLot = repository.save(entityParkingLot);
-
+					entityParkingLot = repository.saveAndFlush(entityParkingLot);
+					log.debug("Parking lot created: {}", entityParkingLot);
 					return new ResponseEntity<ParkingLot>(converter.toApi(entityParkingLot), HttpStatus.CREATED);
 				}
 			}

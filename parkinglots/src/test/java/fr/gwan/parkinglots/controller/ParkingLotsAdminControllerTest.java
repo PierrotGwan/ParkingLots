@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -24,9 +25,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 
 import fr.gwan.parkinglots.TestBase;
 import fr.gwan.parkinglots.domain.ParkingLot;
@@ -80,22 +83,34 @@ public class ParkingLotsAdminControllerTest extends TestBase {
 
 	@Test
 	@Transactional
-	public void createParkingLot() throws Exception {
+	public void createParkingLot() throws Exception, UnsupportedEncodingException {
 		int databaseSizeBeforeCreate = repository.findAll().size();
 
 		// Create the ModuleConfig
 		ParkingLot parkingLot = buildParkingLot();
 
-		mvc.perform(post(BASE_PATH)
+		MvcResult result = mvc.perform(post(BASE_PATH)
 				.accept("application/json")//
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(jsonMapper.writeValueAsBytes(converter.toApi(parkingLot))))
-		.andExpect(status().isCreated());
+		.andExpect(status().isCreated())
+		.andReturn();
 
 		// Validate the ModuleConfig in the database
 		List<ParkingLot> parkingLotsList = repository.findAll();
 		assertThat(parkingLotsList).hasSize(databaseSizeBeforeCreate + 1);
-		ParkingLot testParkingLot = parkingLotsList.get(parkingLotsList.size() - 1);
+		ParkingLot testParkingLot = parkingLotsList.stream()
+				  .filter(checkParkingLot -> {
+					try {
+						return converter.map(JsonPath.parse(result.getResponse().getContentAsString()).read("$.ref").toString()).equals(checkParkingLot.getRef());
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return false;
+				})
+				  .findAny()
+				  .orElse(null);
 		assertThat(testParkingLot.getName()).isEqualTo(PARKING_LOT_NAME_TEST);
 		assertThat(testParkingLot.getParkingSlots().size()).isEqualTo(parkingLot.getParkingSlots().size());
 	}
