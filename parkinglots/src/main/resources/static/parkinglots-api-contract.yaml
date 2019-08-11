@@ -101,6 +101,8 @@ paths:
           description: Parking lot entered successfully. Vehicle must access the returned parking slot
           schema:
             $ref: '#/definitions/ParkingSlot'
+        '403':
+          description: Vehicle cannot enter again a parking lot
         '404':
           description: Parking lot not found or no parking slot left
       tags:

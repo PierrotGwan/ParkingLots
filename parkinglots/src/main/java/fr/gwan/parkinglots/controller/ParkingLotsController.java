@@ -17,12 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.mariuszgromada.math.mxparser.Function;
@@ -54,11 +56,14 @@ public class ParkingLotsController extends AbstractController {
 
 	@ApiOperation(value = "Enter a parking lot", nickname = "parkingLotParkingLotRefVehiclePost", notes = "Enter an existing parking lot with a vehicle.", response = ParkingSlot.class)
 	@ApiResponses(value = { 
-			@ApiResponse(code = 201, message = "Parking lot entered successfully. Vehicle must access the returned parking slot", response = ParkingSlot.class) })
+			@ApiResponse(code = 201, message = "Parking lot entered successfully. Vehicle must access the returned parking slot", response = ParkingSlot.class),
+			@ApiResponse(code = 403, message = "Vehicle cannot enter again a parking lot" ),
+			@ApiResponse(code = 404, message = "Parking lot not found or no parking slot left" )})
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle",
 	produces = { "application/json" }, 
 	consumes = { "application/json" },
 	method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<ParkingSlot> parkingLotParkingLotRefVehiclePost(@ApiParam(value = "Ref of the parking lot to enter.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Information about the vehicle." ,required=true )  @Valid @RequestBody Vehicle vehicle) {
 		try {
 			log.debug("REST request to enter a parking lot with ref {} with a vehicle: {}", parkingLotRef, vehicle);
@@ -76,6 +81,9 @@ public class ParkingLotsController extends AbstractController {
 					return new ResponseEntity<ParkingSlot>(parkingSlotconverter.toApi(entityParkingSlot), HttpStatus.CREATED);
 				}
 			}
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
 		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
@@ -139,6 +147,7 @@ public class ParkingLotsController extends AbstractController {
 			@ApiResponse(code = 408, message = "Payment timeout. Need to request a new price") })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle/{licensePlate}/payment",
 	method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlatePaymentPost(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
 			log.debug("REST request to report payment on a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);
@@ -179,6 +188,7 @@ public class ParkingLotsController extends AbstractController {
 			@ApiResponse(code = 408, message = "Exit timeout. Need to request a new price and pay again") })
 	@RequestMapping(value = "/parkingLots/{parkingLotRef}/vehicle/{licensePlate}",
 	method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlateDelete(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
 			log.debug("REST request to exit a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);

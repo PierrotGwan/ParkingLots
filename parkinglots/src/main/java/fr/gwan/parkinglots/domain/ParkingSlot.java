@@ -55,7 +55,7 @@ public class ParkingSlot {
     @Column(name = "slot_name", columnDefinition = "VARCHAR(128)", nullable = false)
     private String slotName;
 
-    @Column(name = "license_plate_parked_vehicle", columnDefinition = "VARCHAR(128)", nullable = true)
+    @Column(name = "license_plate_parked_vehicle", columnDefinition = "VARCHAR(128)", nullable = true, unique = true)
     private String licensePlateParkedVehicle = null;
 
     @Column(name = "park_time", columnDefinition = "DATETIME", nullable = true)

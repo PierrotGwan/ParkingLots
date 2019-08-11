@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -86,6 +87,7 @@ public class ParkingLotsAdminController extends AbstractController {
 			@ApiResponse(code = 404, message = "Parking lot not found") })
 	@RequestMapping(value = "/admin/parkingLots/{parkingLotRef}",
 	method = RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> adminParkingLotsParkingLotRefDelete(@ApiParam(value = "Ref of the parking lot to delete.",required=true) @PathVariable("parkingLotRef") String parkingLotRef) throws ResponseStatusException {
 		try {
 			log.debug("REST request to delete a parking lot with ref: {}", parkingLotRef);
@@ -143,6 +145,7 @@ public class ParkingLotsAdminController extends AbstractController {
 	produces = { "application/json" }, 
 	consumes = { "application/json" },
 	method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<ParkingLot> adminParkingLotsPost(@ApiParam(value = "Contents of the new parking lot." ,required=true )  @Valid @RequestBody ParkingLot parkingLot) throws ResponseStatusException {
 		try {
 			log.debug("REST request to create a parking lot: {}", parkingLot);
