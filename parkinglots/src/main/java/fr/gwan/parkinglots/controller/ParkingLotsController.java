@@ -87,6 +87,7 @@ public class ParkingLotsController extends AbstractController {
 						throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
 					}
 					catch(OptimisticLockException e) {
+						log.debug("Concurrent save detected, retrying");
 						continue;
 					}
 					log.debug("Parking slot found: {}", entityParkingSlot);
