@@ -70,24 +70,29 @@ public class ParkingLotsController extends AbstractController {
 			log.debug("REST request to enter a parking lot with ref {} with a vehicle: {}", parkingLotRef, vehicle);
 			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
 				if (getAcceptHeader().get().contains("application/json")) {
-					List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef),
-							ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString()));
-					if (parkingSlots.size()==0)
-						return new ResponseEntity<ParkingSlot>(HttpStatus.NOT_FOUND);
-					fr.gwan.parkinglots.domain.ParkingSlot entityParkingSlot = parkingSlots.get((int) (Math.random() * parkingSlots.size()));
-					entityParkingSlot.setLicensePlateParkedVehicle(vehicle.getLicensePlate());
-					entityParkingSlot.setParkTime(new Date());
-					repository.saveAndFlush(entityParkingSlot);
+					fr.gwan.parkinglots.domain.ParkingSlot entityParkingSlot = null;
+					while (true)
+						try {
+							List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef),
+									ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString()));
+							if (parkingSlots.size()==0)
+								return new ResponseEntity<ParkingSlot>(HttpStatus.NOT_FOUND);
+							entityParkingSlot = parkingSlots.get((int) (Math.random() * parkingSlots.size()));
+							entityParkingSlot.setLicensePlateParkedVehicle(vehicle.getLicensePlate());
+							entityParkingSlot.setParkTime(new Date());
+							repository.saveAndFlush(entityParkingSlot);
+							break;
+						}
+					catch(DataIntegrityViolationException e) {
+						throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
+					}
+					catch(OptimisticLockException e) {
+						continue;
+					}
 					log.debug("Parking slot found: {}", entityParkingSlot);
 					return new ResponseEntity<ParkingSlot>(parkingSlotconverter.toApi(entityParkingSlot), HttpStatus.CREATED);
 				}
 			}
-		}
-		catch(DataIntegrityViolationException e) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
-		}
-		catch(OptimisticLockException e) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Retry needed", e);
 		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
