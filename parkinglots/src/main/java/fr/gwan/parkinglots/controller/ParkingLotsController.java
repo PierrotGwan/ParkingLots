@@ -30,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.mariuszgromada.math.mxparser.Function;
 import org.mariuszgromada.math.mxparser.Argument;
 
+import javax.persistence.OptimisticLockException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -69,11 +70,11 @@ public class ParkingLotsController extends AbstractController {
 			log.debug("REST request to enter a parking lot with ref {} with a vehicle: {}", parkingLotRef, vehicle);
 			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
 				if (getAcceptHeader().get().contains("application/json")) {
-					ParkingSlotTypeEnum type = ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString());
-					List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), type);
+					List<fr.gwan.parkinglots.domain.ParkingSlot> parkingSlots = repository.findAllWithEagerRelationships(parkingSlotconverter.map(parkingLotRef),
+							ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString()));
 					if (parkingSlots.size()==0)
 						return new ResponseEntity<ParkingSlot>(HttpStatus.NOT_FOUND);
-					fr.gwan.parkinglots.domain.ParkingSlot entityParkingSlot = parkingSlots.get(0);
+					fr.gwan.parkinglots.domain.ParkingSlot entityParkingSlot = parkingSlots.get((int) (Math.random() * parkingSlots.size()));
 					entityParkingSlot.setLicensePlateParkedVehicle(vehicle.getLicensePlate());
 					entityParkingSlot.setParkTime(new Date());
 					repository.saveAndFlush(entityParkingSlot);
@@ -84,6 +85,9 @@ public class ParkingLotsController extends AbstractController {
 		}
 		catch(DataIntegrityViolationException e) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vehicle cannot enter again a parking lot", e);
+		}
+		catch(OptimisticLockException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Retry needed", e);
 		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);

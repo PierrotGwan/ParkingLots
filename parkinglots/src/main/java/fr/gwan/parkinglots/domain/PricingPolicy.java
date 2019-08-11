@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
@@ -53,6 +54,9 @@ public class PricingPolicy implements Serializable {
 
     @Column(name = "exit_timeout", columnDefinition = "INT", nullable = false)
     private Integer exitTimeout;
+
+    @Version
+    private long version;
 
     public String getSedanPricingPolicy() {
         return sedanPricingPolicy;

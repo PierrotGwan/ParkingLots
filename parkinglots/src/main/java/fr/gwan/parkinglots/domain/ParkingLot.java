@@ -20,6 +20,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -54,6 +55,9 @@ public class ParkingLot implements Serializable {
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     private PricingPolicy pricingPolicy;
     
+    @Version
+    private long version;
+
     public UUID getRef() {
         return ref;
     }
