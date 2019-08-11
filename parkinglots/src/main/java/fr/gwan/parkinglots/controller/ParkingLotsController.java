@@ -61,7 +61,7 @@ public class ParkingLotsController extends AbstractController {
 	method = RequestMethod.POST)
 	public ResponseEntity<ParkingSlot> parkingLotParkingLotRefVehiclePost(@ApiParam(value = "Ref of the parking lot to enter.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Information about the vehicle." ,required=true )  @Valid @RequestBody Vehicle vehicle) {
 		try {
-        	log.debug("REST request to enter a parking lot with ref {} with a vehicle: {}", parkingLotRef, vehicle);
+			log.debug("REST request to enter a parking lot with ref {} with a vehicle: {}", parkingLotRef, vehicle);
 			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
 				if (getAcceptHeader().get().contains("application/json")) {
 					ParkingSlotTypeEnum type = ParkingSlotTypeEnum.fromValue(vehicle.getNeededParkingSlotType().toString());
@@ -72,7 +72,7 @@ public class ParkingLotsController extends AbstractController {
 					entityParkingSlot.setLicensePlateParkedVehicle(vehicle.getLicensePlate());
 					entityParkingSlot.setParkTime(new Date());
 					repository.saveAndFlush(entityParkingSlot);
-		        	log.debug("Parking slot found: {}", entityParkingSlot);
+					log.debug("Parking slot found: {}", entityParkingSlot);
 					return new ResponseEntity<ParkingSlot>(parkingSlotconverter.toApi(entityParkingSlot), HttpStatus.CREATED);
 				}
 			}
@@ -92,7 +92,7 @@ public class ParkingLotsController extends AbstractController {
 	method = RequestMethod.GET)
 	public ResponseEntity<Payment> parkingLotParkingLotRefVehicleLicensePlatePaymentGet(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
-        	log.debug("REST request to request payment on a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);
+			log.debug("REST request to request payment on a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);
 			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
 				if (getAcceptHeader().get().contains("application/json")) {
 					fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
@@ -117,7 +117,7 @@ public class ParkingLotsController extends AbstractController {
 					payment.setPrice(new BigDecimal(function.calculate(new Argument("h", payment.getNbHours().doubleValue()))));
 					parkingSlot.setPriceComputingTime(new Date());
 					repository.saveAndFlush(parkingSlot);
-		        	log.debug("Payment computed: {}", payment);
+					log.debug("Payment computed: {}", payment);
 					return new ResponseEntity<Payment>(payment, HttpStatus.OK);
 
 				}
@@ -142,31 +142,29 @@ public class ParkingLotsController extends AbstractController {
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlatePaymentPost(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
 			log.debug("REST request to report payment on a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);
-			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-				if (getAcceptHeader().get().contains("application/json")) {
-					fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
-					if (parkingSlot==null)
-						return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-					if (parkingSlot.getPriceComputingTime()==null)
-		            	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Need to request a price first");
-					long interval = (new Date().getTime() - parkingSlot.getPriceComputingTime().getTime()) / 1000;
-					if (parkingSlot.getParkingLot().getPricingPolicy().getPaymentTimeout() < interval)
-					{
-						parkingSlot.setParkTime(parkingSlot.getPriceComputingTime());
-						parkingSlot.setPriceComputingTime(null);
-						repository.saveAndFlush(parkingSlot);
-						throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Payment timeout. Need to request a new price");
-					}
+			if(getObjectMapper().isPresent()) {
+				fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
+				if (parkingSlot==null)
+					return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+				if (parkingSlot.getPriceComputingTime()==null)
+					throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Need to request a price first");
+				long interval = (new Date().getTime() - parkingSlot.getPriceComputingTime().getTime()) / 1000;
+				if (parkingSlot.getParkingLot().getPricingPolicy().getPaymentTimeout() < interval)
+				{
+					parkingSlot.setParkTime(parkingSlot.getPriceComputingTime());
+					parkingSlot.setPriceComputingTime(null);
 					repository.saveAndFlush(parkingSlot);
-					log.debug("Payment processed: {}", parkingLotRef, licensePlate);
-					return new ResponseEntity<Void>(HttpStatus.CREATED);
+					throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Payment timeout. Need to request a new price");
 				}
+				repository.saveAndFlush(parkingSlot);
+				log.debug("Payment processed: {}", parkingLotRef, licensePlate);
+				return new ResponseEntity<Void>(HttpStatus.CREATED);
 
 			}
 		}
-        catch(ResponseStatusException e) {
-            throw e;
-        }
+		catch(ResponseStatusException e) {
+			throw e;
+		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
@@ -184,28 +182,25 @@ public class ParkingLotsController extends AbstractController {
 	public ResponseEntity<Void> parkingLotParkingLotRefVehicleLicensePlateDelete(@ApiParam(value = "Ref of the vehicle parking lot.",required=true) @PathVariable("parkingLotRef") String parkingLotRef,@ApiParam(value = "Vehicle license plate.",required=true) @PathVariable("licensePlate") String licensePlate) {
 		try {
 			log.debug("REST request to exit a parking lot with ref {} with a vehicle with license plate: {}", parkingLotRef, licensePlate);
-			if(getObjectMapper().isPresent() && getAcceptHeader().isPresent()) {
-				if (getAcceptHeader().get().contains("application/json")) {
-					fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
-					if (parkingSlot==null)
-						return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-					if (parkingSlot.getPriceComputingTime()!=null)
-		            	throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required before exit");
-					long interval = (new Date().getTime() - parkingSlot.getParkTime().getTime()) / 1000;
-					if (parkingSlot.getParkingLot().getPricingPolicy().getExitTimeout() < interval)
-		            	throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Exit timeout. Need to request a new price and pay again");
-					parkingSlot.setParkTime(null);
-					parkingSlot.setLicensePlateParkedVehicle(null);
-					repository.saveAndFlush(parkingSlot);
-					log.debug("Exit allowed");
-					return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-				}
-
+			if(getObjectMapper().isPresent()) {
+				fr.gwan.parkinglots.domain.ParkingSlot parkingSlot = repository.findOneWithEagerRelationships(parkingSlotconverter.map(parkingLotRef), licensePlate);
+				if (parkingSlot==null)
+					return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+				if (parkingSlot.getPriceComputingTime()!=null)
+					throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Payment required before exit");
+				long interval = (new Date().getTime() - parkingSlot.getParkTime().getTime()) / 1000;
+				if (parkingSlot.getParkingLot().getPricingPolicy().getExitTimeout() < interval)
+					throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, "Exit timeout. Need to request a new price and pay again");
+				parkingSlot.setParkTime(null);
+				parkingSlot.setLicensePlateParkedVehicle(null);
+				repository.saveAndFlush(parkingSlot);
+				log.debug("Exit allowed");
+				return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 			}
 		}
-        catch(ResponseStatusException e) {
-            throw e;
-        }
+		catch(ResponseStatusException e) {
+			throw e;
+		}
 		catch(Exception e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error", e);
 		}
