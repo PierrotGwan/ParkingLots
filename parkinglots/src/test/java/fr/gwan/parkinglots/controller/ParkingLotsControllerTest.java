@@ -2,7 +2,6 @@ package fr.gwan.parkinglots.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,15 +12,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +36,6 @@ import fr.gwan.parkinglots.api.model.Vehicle;
 import fr.gwan.parkinglots.domain.ParkingLot;
 import fr.gwan.parkinglots.domain.ParkingSlot;
 import fr.gwan.parkinglots.domain.ParkingSlotTypeEnum;
-import fr.gwan.parkinglots.domain.converter.ParkingLotConverter;
 import fr.gwan.parkinglots.repository.ParkingLotRepository;
 import fr.gwan.parkinglots.repository.ParkingSlotRepository;
 
@@ -61,9 +55,6 @@ public class ParkingLotsControllerTest extends TestBase {
 
 	@Autowired
 	private ParkingSlotRepository parkingSlotRepository;
-
-	@Autowired
-	private ParkingLotConverter converter;
 
 	@Autowired
 	private ObjectMapper jsonMapper;

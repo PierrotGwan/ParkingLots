@@ -2,11 +2,8 @@ package fr.gwan.parkinglots.domain.converter;
 
 import java.time.ZoneOffset;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import fr.gwan.parkinglots.domain.ParkingSlotTypeEnum;
 import fr.gwan.parkinglots.domain.ParkingSlot;

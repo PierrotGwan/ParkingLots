@@ -6,9 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.gwan.parkinglots.domain.converter.ParkingLotConverter;
-import fr.gwan.parkinglots.repository.ParkingLotRepository;
-
 public abstract class AbstractController {
 
     protected final ObjectMapper objectMapper;

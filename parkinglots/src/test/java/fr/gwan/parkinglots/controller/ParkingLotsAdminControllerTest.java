@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,9 +32,6 @@ import com.jayway.jsonpath.JsonPath;
 
 import fr.gwan.parkinglots.TestBase;
 import fr.gwan.parkinglots.domain.ParkingLot;
-import fr.gwan.parkinglots.domain.ParkingSlot;
-import fr.gwan.parkinglots.domain.ParkingSlotTypeEnum;
-import fr.gwan.parkinglots.domain.PricingPolicy;
 import fr.gwan.parkinglots.domain.converter.ParkingLotConverter;
 import fr.gwan.parkinglots.repository.ParkingLotRepository;
 
